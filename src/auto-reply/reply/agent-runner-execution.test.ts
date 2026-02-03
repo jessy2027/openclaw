@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { runAgentTurnWithFallback } from "./agent-runner-execution.js";
-import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { SessionEntry } from "../../config/sessions.js";
-import type { FollowupRun } from "./queue.js";
 import type { TemplateContext } from "../templating.js";
+import type { FollowupRun } from "./queue.js";
 import type { TypingSignaler } from "./typing-mode.js";
+import { runEmbeddedPiAgent } from "../../agents/pi-embedded.js";
+import { runAgentTurnWithFallback } from "./agent-runner-execution.js";
 
 // Mock dependencies
 vi.mock("../../agents/pi-embedded.js", () => ({
@@ -46,13 +46,15 @@ describe("runAgentTurnWithFallback", () => {
 
     // Mock runEmbeddedPiAgent behavior
     vi.mocked(runEmbeddedPiAgent)
-      .mockRejectedValueOnce(Object.assign(new Error("HTTP 429: Rate limit exceeded"), { status: 429 }))
+      .mockRejectedValueOnce(
+        Object.assign(new Error("HTTP 429: Rate limit exceeded"), { status: 429 }),
+      )
       .mockResolvedValueOnce({
         meta: {
           agentMeta: {
             provider: "openrouter",
             model: "moonshotai/kimi-k2.5",
-          }
+          },
         },
         payloads: [{ text: "Fallback response" }],
       } as Awaited<ReturnType<typeof runEmbeddedPiAgent>>);
@@ -72,16 +74,16 @@ describe("runAgentTurnWithFallback", () => {
 
     // Updated to match TemplateContext keys (PascalCase)
     const sessionCtx = {
-        Provider: "web",
-        AccountId: "user",
+      Provider: "web",
+      AccountId: "user",
     } as unknown as TemplateContext;
 
     const typingSignals = {
-        signalTextDelta: vi.fn(),
-        signalMessageStart: vi.fn(),
-        signalRunStart: vi.fn(),
-        signalReasoningDelta: vi.fn(),
-        signalToolStart: vi.fn(),
+      signalTextDelta: vi.fn(),
+      signalMessageStart: vi.fn(),
+      signalRunStart: vi.fn(),
+      signalReasoningDelta: vi.fn(),
+      signalToolStart: vi.fn(),
     } as unknown as TypingSignaler;
 
     // Run
@@ -101,7 +103,7 @@ describe("runAgentTurnWithFallback", () => {
       resetSessionAfterRoleOrderingConflict: vi.fn().mockResolvedValue(false),
       isHeartbeat: false,
       sessionKey: "test-session",
-      getActiveSessionEntry: () => ({} as SessionEntry),
+      getActiveSessionEntry: () => ({}) as SessionEntry,
       activeSessionStore: {},
       storePath: "/tmp/store",
       resolvedVerboseLevel: "off",
@@ -110,21 +112,27 @@ describe("runAgentTurnWithFallback", () => {
     // Verify result
     expect(result.kind).toBe("success");
     if (result.kind === "success") {
-        expect(result.fallbackProvider).toBe("openrouter");
-        expect(result.fallbackModel).toBe("moonshotai/kimi-k2.5");
+      expect(result.fallbackProvider).toBe("openrouter");
+      expect(result.fallbackModel).toBe("moonshotai/kimi-k2.5");
     }
 
     // Verify calls
     expect(runEmbeddedPiAgent).toHaveBeenCalledTimes(2);
     // First call with primary
-    expect(runEmbeddedPiAgent).toHaveBeenNthCalledWith(1, expect.objectContaining({
+    expect(runEmbeddedPiAgent).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
         provider: "google",
         model: "gemini-2.5-flash",
-    }));
+      }),
+    );
     // Second call with fallback
-    expect(runEmbeddedPiAgent).toHaveBeenNthCalledWith(2, expect.objectContaining({
+    expect(runEmbeddedPiAgent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
         provider: "openrouter",
         model: "moonshotai/kimi-k2.5",
-    }));
+      }),
+    );
   });
 });

@@ -48,17 +48,11 @@ function resolveProvider(config: VoiceCallConfig): VoiceCallProvider {
 
   switch (config.provider) {
     case "telnyx":
-      return new TelnyxProvider(
-        {
-          apiKey: config.telnyx?.apiKey,
-          connectionId: config.telnyx?.connectionId,
-          publicKey: config.telnyx?.publicKey,
-        },
-        {
-          allowUnsignedWebhooks:
-            config.inboundPolicy === "open" || config.inboundPolicy === "disabled",
-        },
-      );
+      return new TelnyxProvider({
+        apiKey: config.telnyx?.apiKey,
+        connectionId: config.telnyx?.connectionId,
+        publicKey: config.telnyx?.publicKey,
+      });
     case "twilio":
       return new TwilioProvider(
         {
@@ -166,7 +160,8 @@ export async function createVoiceCallRuntime(params: {
         log.info("[voice-call] Telephony TTS provider configured");
       } catch (err) {
         log.warn(
-          `[voice-call] Failed to initialize telephony TTS: ${err instanceof Error ? err.message : String(err)
+          `[voice-call] Failed to initialize telephony TTS: ${
+            err instanceof Error ? err.message : String(err)
           }`,
         );
       }

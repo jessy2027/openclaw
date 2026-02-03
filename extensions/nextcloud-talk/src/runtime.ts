@@ -1,6 +1,5 @@
 import type { PluginRuntime } from "openclaw/plugin-sdk";
 
-// eslint-disable-next-line
 let runtime: PluginRuntime | null = null;
 
 export function setNextcloudTalkRuntime(next: PluginRuntime) {

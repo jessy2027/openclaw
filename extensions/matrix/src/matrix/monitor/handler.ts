@@ -23,9 +23,9 @@ import {
   sendTypingMatrix,
 } from "../send.js";
 import {
-  normalizeMatrixAllowList,
   resolveMatrixAllowListMatch,
   resolveMatrixAllowListMatches,
+  normalizeAllowListLower,
 } from "./allowlist.js";
 import { resolveMatrixLocation, type MatrixLocationPayload } from "./location.js";
 import { downloadMatrixMedia } from "./media.js";
@@ -236,9 +236,12 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const storeAllowFrom = await core.channel.pairing
         .readAllowFromStore("matrix")
         .catch(() => []);
-      const effectiveAllowFrom = normalizeMatrixAllowList([...allowFrom, ...storeAllowFrom]);
+      const effectiveAllowFrom = normalizeAllowListLower([...allowFrom, ...storeAllowFrom]);
       const groupAllowFrom = cfg.channels?.matrix?.groupAllowFrom ?? [];
-      const effectiveGroupAllowFrom = normalizeMatrixAllowList(groupAllowFrom);
+      const effectiveGroupAllowFrom = normalizeAllowListLower([
+        ...groupAllowFrom,
+        ...storeAllowFrom,
+      ]);
       const groupAllowConfigured = effectiveGroupAllowFrom.length > 0;
 
       if (isDirectMessage) {
@@ -249,6 +252,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
           const allowMatch = resolveMatrixAllowListMatch({
             allowList: effectiveAllowFrom,
             userId: senderId,
+            userName: senderName,
           });
           const allowMatchMeta = formatAllowlistMatchMeta(allowMatch);
           if (!allowMatch.allowed) {
@@ -293,8 +297,9 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const roomUsers = roomConfig?.users ?? [];
       if (isRoom && roomUsers.length > 0) {
         const userMatch = resolveMatrixAllowListMatch({
-          allowList: normalizeMatrixAllowList(roomUsers),
+          allowList: normalizeAllowListLower(roomUsers),
           userId: senderId,
+          userName: senderName,
         });
         if (!userMatch.allowed) {
           logVerboseMessage(
@@ -309,6 +314,7 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
         const groupAllowMatch = resolveMatrixAllowListMatch({
           allowList: effectiveGroupAllowFrom,
           userId: senderId,
+          userName: senderName,
         });
         if (!groupAllowMatch.allowed) {
           logVerboseMessage(
@@ -381,18 +387,21 @@ export function createMatrixRoomMessageHandler(params: MatrixMonitorHandlerParam
       const senderAllowedForCommands = resolveMatrixAllowListMatches({
         allowList: effectiveAllowFrom,
         userId: senderId,
+        userName: senderName,
       });
       const senderAllowedForGroup = groupAllowConfigured
         ? resolveMatrixAllowListMatches({
             allowList: effectiveGroupAllowFrom,
             userId: senderId,
+            userName: senderName,
           })
         : false;
       const senderAllowedForRoomUsers =
         isRoom && roomUsers.length > 0
           ? resolveMatrixAllowListMatches({
-              allowList: normalizeMatrixAllowList(roomUsers),
+              allowList: normalizeAllowListLower(roomUsers),
               userId: senderId,
+              userName: senderName,
             })
           : false;
       const hasControlCommandInMessage = core.channel.text.hasControlCommand(bodyText, cfg);
