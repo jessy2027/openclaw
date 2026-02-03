@@ -166,8 +166,7 @@ export async function createVoiceCallRuntime(params: {
         log.info("[voice-call] Telephony TTS provider configured");
       } catch (err) {
         log.warn(
-          `[voice-call] Failed to initialize telephony TTS: ${
-            err instanceof Error ? err.message : String(err)
+          `[voice-call] Failed to initialize telephony TTS: ${err instanceof Error ? err.message : String(err)
           }`,
         );
       }
