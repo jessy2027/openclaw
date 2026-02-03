@@ -122,6 +122,8 @@ export async function browserStart(baseUrl?: string, opts?: { profile?: string }
   const q = buildProfileQuery(opts?.profile);
   await fetchBrowserJson(withBaseUrl(baseUrl, `/start${q}`), {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ profile: opts?.profile }),
     timeoutMs: 15000,
   });
 }
@@ -130,6 +132,8 @@ export async function browserStop(baseUrl?: string, opts?: { profile?: string })
   const q = buildProfileQuery(opts?.profile);
   await fetchBrowserJson(withBaseUrl(baseUrl, `/stop${q}`), {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ profile: opts?.profile }),
     timeoutMs: 15000,
   });
 }
@@ -143,6 +147,8 @@ export async function browserResetProfile(
     withBaseUrl(baseUrl, `/reset-profile${q}`),
     {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile: opts?.profile }),
       timeoutMs: 20000,
     },
   );
@@ -222,7 +228,7 @@ export async function browserOpenTab(
   return await fetchBrowserJson<BrowserTab>(withBaseUrl(baseUrl, `/tabs/open${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, profile: opts?.profile }),
     timeoutMs: 15000,
   });
 }
@@ -236,7 +242,7 @@ export async function browserFocusTab(
   await fetchBrowserJson(withBaseUrl(baseUrl, `/tabs/focus${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ targetId }),
+    body: JSON.stringify({ targetId, profile: opts?.profile }),
     timeoutMs: 5000,
   });
 }
@@ -268,6 +274,7 @@ export async function browserTabAction(
     body: JSON.stringify({
       action: opts.action,
       index: opts.index,
+      profile: opts.profile,
     }),
     timeoutMs: 10_000,
   });

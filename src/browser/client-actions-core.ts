@@ -111,7 +111,11 @@ export async function browserNavigate(
   return await fetchBrowserJson<BrowserActionTabResult>(withBaseUrl(baseUrl, `/navigate${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url: opts.url, targetId: opts.targetId }),
+    body: JSON.stringify({
+      url: opts.url,
+      targetId: opts.targetId,
+      profile: opts.profile,
+    }),
     timeoutMs: 20000,
   });
 }
@@ -135,6 +139,7 @@ export async function browserArmDialog(
       promptText: opts.promptText,
       targetId: opts.targetId,
       timeoutMs: opts.timeoutMs,
+      profile: opts.profile,
     }),
     timeoutMs: 20000,
   });
@@ -163,6 +168,7 @@ export async function browserArmFileChooser(
       element: opts.element,
       targetId: opts.targetId,
       timeoutMs: opts.timeoutMs,
+      profile: opts.profile,
     }),
     timeoutMs: 20000,
   });
@@ -189,6 +195,7 @@ export async function browserWaitForDownload(
       targetId: opts.targetId,
       path: opts.path,
       timeoutMs: opts.timeoutMs,
+      profile: opts.profile,
     }),
     timeoutMs: 20000,
   });
@@ -217,6 +224,7 @@ export async function browserDownload(
       ref: opts.ref,
       path: opts.path,
       timeoutMs: opts.timeoutMs,
+      profile: opts.profile,
     }),
     timeoutMs: 20000,
   });
@@ -231,7 +239,7 @@ export async function browserAct(
   return await fetchBrowserJson<BrowserActResponse>(withBaseUrl(baseUrl, `/act${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(req),
+    body: JSON.stringify({ ...req, profile: opts?.profile }),
     timeoutMs: 20000,
   });
 }
@@ -257,6 +265,7 @@ export async function browserScreenshotAction(
       ref: opts.ref,
       element: opts.element,
       type: opts.type,
+      profile: opts.profile,
     }),
     timeoutMs: 20000,
   });
