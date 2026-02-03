@@ -108,10 +108,15 @@ export async function browserNavigate(
   },
 ): Promise<BrowserActionTabResult> {
   const q = buildProfileQuery(opts.profile);
+  const body = {
+    url: opts.url,
+    targetId: opts.targetId,
+    ...(opts.profile ? { profile: opts.profile } : {}),
+  };
   return await fetchBrowserJson<BrowserActionTabResult>(withBaseUrl(baseUrl, `/navigate${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url: opts.url, targetId: opts.targetId }),
+    body: JSON.stringify(body),
     timeoutMs: 20000,
   });
 }
@@ -127,15 +132,17 @@ export async function browserArmDialog(
   },
 ): Promise<BrowserActionOk> {
   const q = buildProfileQuery(opts.profile);
+  const body = {
+    accept: opts.accept,
+    promptText: opts.promptText,
+    targetId: opts.targetId,
+    timeoutMs: opts.timeoutMs,
+    ...(opts.profile ? { profile: opts.profile } : {}),
+  };
   return await fetchBrowserJson<BrowserActionOk>(withBaseUrl(baseUrl, `/hooks/dialog${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      accept: opts.accept,
-      promptText: opts.promptText,
-      targetId: opts.targetId,
-      timeoutMs: opts.timeoutMs,
-    }),
+    body: JSON.stringify(body),
     timeoutMs: 20000,
   });
 }
@@ -153,17 +160,19 @@ export async function browserArmFileChooser(
   },
 ): Promise<BrowserActionOk> {
   const q = buildProfileQuery(opts.profile);
+  const body = {
+    paths: opts.paths,
+    ref: opts.ref,
+    inputRef: opts.inputRef,
+    element: opts.element,
+    targetId: opts.targetId,
+    timeoutMs: opts.timeoutMs,
+    ...(opts.profile ? { profile: opts.profile } : {}),
+  };
   return await fetchBrowserJson<BrowserActionOk>(withBaseUrl(baseUrl, `/hooks/file-chooser${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      paths: opts.paths,
-      ref: opts.ref,
-      inputRef: opts.inputRef,
-      element: opts.element,
-      targetId: opts.targetId,
-      timeoutMs: opts.timeoutMs,
-    }),
+    body: JSON.stringify(body),
     timeoutMs: 20000,
   });
 }
@@ -178,6 +187,12 @@ export async function browserWaitForDownload(
   },
 ): Promise<{ ok: true; targetId: string; download: BrowserDownloadPayload }> {
   const q = buildProfileQuery(opts.profile);
+  const body = {
+    targetId: opts.targetId,
+    path: opts.path,
+    timeoutMs: opts.timeoutMs,
+    ...(opts.profile ? { profile: opts.profile } : {}),
+  };
   return await fetchBrowserJson<{
     ok: true;
     targetId: string;
@@ -185,11 +200,7 @@ export async function browserWaitForDownload(
   }>(withBaseUrl(baseUrl, `/wait/download${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      targetId: opts.targetId,
-      path: opts.path,
-      timeoutMs: opts.timeoutMs,
-    }),
+    body: JSON.stringify(body),
     timeoutMs: 20000,
   });
 }
@@ -205,6 +216,13 @@ export async function browserDownload(
   },
 ): Promise<{ ok: true; targetId: string; download: BrowserDownloadPayload }> {
   const q = buildProfileQuery(opts.profile);
+  const body = {
+    targetId: opts.targetId,
+    ref: opts.ref,
+    path: opts.path,
+    timeoutMs: opts.timeoutMs,
+    ...(opts.profile ? { profile: opts.profile } : {}),
+  };
   return await fetchBrowserJson<{
     ok: true;
     targetId: string;
@@ -212,12 +230,7 @@ export async function browserDownload(
   }>(withBaseUrl(baseUrl, `/download${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      targetId: opts.targetId,
-      ref: opts.ref,
-      path: opts.path,
-      timeoutMs: opts.timeoutMs,
-    }),
+    body: JSON.stringify(body),
     timeoutMs: 20000,
   });
 }
@@ -228,10 +241,11 @@ export async function browserAct(
   opts?: { profile?: string },
 ): Promise<BrowserActResponse> {
   const q = buildProfileQuery(opts?.profile);
+  const body = opts?.profile ? { ...req, profile: opts.profile } : req;
   return await fetchBrowserJson<BrowserActResponse>(withBaseUrl(baseUrl, `/act${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(req),
+    body: JSON.stringify(body),
     timeoutMs: 20000,
   });
 }
@@ -248,16 +262,18 @@ export async function browserScreenshotAction(
   },
 ): Promise<BrowserActionPathResult> {
   const q = buildProfileQuery(opts.profile);
+  const body = {
+    targetId: opts.targetId,
+    fullPage: opts.fullPage,
+    ref: opts.ref,
+    element: opts.element,
+    type: opts.type,
+    ...(opts.profile ? { profile: opts.profile } : {}),
+  };
   return await fetchBrowserJson<BrowserActionPathResult>(withBaseUrl(baseUrl, `/screenshot${q}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      targetId: opts.targetId,
-      fullPage: opts.fullPage,
-      ref: opts.ref,
-      element: opts.element,
-      type: opts.type,
-    }),
+    body: JSON.stringify(body),
     timeoutMs: 20000,
   });
 }
